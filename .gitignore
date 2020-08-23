@@ -1,0 +1,48 @@
+# ++
+# std gitignore
+#
+
+# ++
+# object decks ...
+#
+*.o
+*.obj
+
+# ++
+# libraries, static and dynamic
+#   keeping .a and .so files because those names work
+#   fine on nt and there may be occasion to use them
+#   at some point ...
+#
+*.a
+*.so
+*.dll
+*.dll.*
+*.exp
+*.lib
+
+# ++
+# executables ...
+#
+*.exe
+*.scr
+
+# ++
+# symbol files ...
+#
+*.pdb
+*.ilk
+
+# ++
+# compiled resources ...
+#
+*.res
+
+# ++
+# miscellaneous stuff ...
+#
+*.bak
+cscope.*
+ctree.*
+.save/
+.junk/
