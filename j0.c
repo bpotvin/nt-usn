@@ -1,3 +1,8 @@
+/*++
+ * x86 or x64 ...
+ *   cl -W4 -O2 j0.c
+ *   cl -W4 -Zi j0.c
+ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <winioctl.h>
@@ -51,72 +56,6 @@ typedef union _ULARGE_INTEGER128
  * existing examples use X'FFFFFFFF for 'all' ...
  */
 #define _USN_REASON_ALL         0xFFFFFFFF
-
-/*++
- * compile: cl -W4 [-Zi] j0.c
- * 
- * reading usn changes
- * the code here reads and displays usn change records. this can be useful for
- * applications that track file changes. note that usn change records indicate 
- * changes have been made to a file. they do not show what was changed.
- * 
- * there are 24 change reasons listed in the winioctl.h header. the microsoft 
- * journal documentation indicates changes are cumulative as long as a file is
- * open. the 'close' reason in a change shows all of the changes that happened
- * while the file was open.
- * 
- * more information here:
- *   https://docs.microsoft.com/en-us/windows/win32/fileio/change-journals
- *   https://docs.microsoft.com/en-us/windows/win32/fileio/change-journal-records
- * 
- * this is the general flow of this code:
- * 
- * _UsnpReadJournalData                     open volume, get journal data
- *   + _UsnpFormatJournalData               print the journal data
- *   + _UsnpReadJournalRecords              get usn change records
- *     + _UsnpFormatRecord                  print records based on version
- *       | _UsnpFormatRecordV2              print v2 (not implemented)
- *       | _UsnpFormatRecordV3              print v3
- *       | _UsnpFormatRecordV4              print v4 (not implemented)
- *          + _UsnpGetFilenameFromFileId    get name from a FILE_ID_128
- *          + _UsnpFormatTimestamp          format an nt timestamp
- *          + _UsnpDump                     hex-dump
- * 
- * _UsnpGetFileIdFromFilename               get fild_id_128 from filename
- * _UsnpGetFileIdFromHandle                 get fild_id_128 from handle
- * 
- * usn change records contain the file-reference-number of the file that has
- * changed, along with a parent-file-reference-number, the directory where the
- * file is/was. the openfilebyid function can be used to get the name of the
- * directory and then compare that name with locations of interest. another way
- * to filter would be to open a handle to a directory of interest, then use the
- * getfileinformationbyhandle function and then save the fileindex, then while 
- * enumerating change records, compare with the parent-file-reference-number.
- * 
- * example usn change record:
- * >>>>>>>>
- *  FRN          0000000000000000002400000009D875
- *  Parent FRN   0000000000000000000D0000000A0CD9 - \\?\C:\Users\me\AppData\Local\Temp
- *  USN          0000000498241F98
- *  Reason       80000102
- *  Attributes   00000120
- *  FileName     _CL_3817d218in
- *  TimeStamp    01D63C5D4ABBA32B - 2020-06-06 23:50:43.744
- * 
- * example getfileinformationbyhandle fileindex:
- * >>>>>>>>
- * 000D0000000A0CD9 C:\Users\me\AppData\Local\Temp
- * 
- * the lowpart of the file-reference-number is the fileindex:
- * 
- * 0000000000000000000D0000000A0CD9 - file-reference-number (FILE_ID_128)
- *                 ^^^^^^^^^^^^^^^^
- *                 000D0000000A0CD9 - fileindex
- * 
- * the _UsnpGetFileIdFromFilename and _UsnpGetFileIdFromHandle functions can be
- * used to get the file index for a file or directory.
- * 
- */
 
 /*++
  */
